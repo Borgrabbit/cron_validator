@@ -232,8 +232,8 @@ class CronValidator(object):
             raise FormatException(exception_msg)
 
         """ DAY of Month """
-        # n
-        # n-n
+        # n - ?
+        # n-n - ?
         # n/n - ? -> */n
         # n,n,n - ?
         # L - ?
@@ -279,12 +279,12 @@ class CronValidator(object):
         #     raise FormatException(exception_msg)
 
         """ DAY of Week field  """
-        # *
-        # n-n
-        # n/n
-        # /D{1,3},/D{1,3}
-        # nL
-        # n#n
+        # ? - *
+        # ? - n-n
+        # ? - n/n
+        # ? - /D{1,3},/D{1,3}
+        # ? - nL
+        # ? - n#n
 
     def check_value_limit(self, exception_type=None, **kwargs):
         print('KWARGS :: ', kwargs)
