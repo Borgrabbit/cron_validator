@@ -231,6 +231,61 @@ class CronValidator(object):
             exception_msg = "Illegal Expression Format {}".format(expr_year)
             raise FormatException(exception_msg)
 
+        """ DAY of Month """
+        # n
+        # n-n
+        # n/n - ? -> */n
+        # n,n,n - ?
+        # L - ?
+        # LW - ?
+        # L-n{1,2} - ?
+        # n{1,2}W - ?
+        expr_day = '*/1'
+        if re.fullmatch("\d{1,2}$", expr_day):
+            print("expr_day 1")
+            self.check_value_limit(expr=expr_day, mi=1, mx=31, prefix='Day')
+        elif re.search(r"[-*,/]", expr_day):
+            print(f'expr_day special character ')
+            if re.fullmatch(r"\d{4}-\d{4}$", expr_day):
+                print(f'n-n {expr_day}')
+                temp = expr_day.split("-")
+                self.check_value_limit(expr=temp[0], mi=1, mx=31, prefix='Day')
+                self.check_value_limit(expr=temp[1], mi=1, mx=31, prefix='Day')
+                # self.compare_range(st=temp[0], ed=temp[1], mi=1970, mx=2099, prefix='Day')
+        #     elif re.fullmatch(r"\d{4}/\d{1,3}$", expr_day):
+        #         print(f'n/n {expr_day}')
+        #         temp = expr_day.split("/")
+        #         self.check_value_limit(expr=temp[0], mi=1970, mx=2099, prefix='Day')
+        #         self.check_value_limit('interval', expr=temp[1], mi=0, mx=129, prefix='Day')
+        #     elif re.fullmatch(r"\*/\d{1,3}$", expr_day):
+        #         print("*/n ", expr_day)
+        #         temp = expr_day.split("/")
+        #         self.check_value_limit('interval', expr=temp[1], mi=0, mx=129, prefix='Day')
+        #     elif re.fullmatch(r"^\d{4}(,\d{4})+", expr_day):
+        #         print(f'n,n {expr_day}')
+        #         expr_day_list = expr_day.split(",")
+        #         if len(expr_day_list) > 84:
+        #             exception_msg = "Exceeded maximum number({0}) of specified value. '{1}' is provided".format(84, len(expr_day_list))
+        #             raise FormatException(exception_msg)
+        #         else:
+        #             for year in expr_year.split(","):
+        #                 self.check_value_limit(expr=year, mi=1970, mx=2099, prefix='Day')
+        #     else:
+        #         exception_msg = "Illegal Expression Format {}".format(expr_day)
+        #         raise FormatException(exception_msg)
+        # else:
+        #     print(f'Unknown match {expr_day}')
+        #     exception_msg = "Illegal Expression Format {}".format(expr_day)
+        #     raise FormatException(exception_msg)
+
+        """ DAY of Week field  """
+        # *
+        # n-n
+        # n/n
+        # /D{1,3},/D{1,3}
+        # nL
+        # n#n
+
     def check_value_limit(self, exception_type=None, **kwargs):
         print('KWARGS :: ', kwargs)
         prefix = kwargs["prefix"]
