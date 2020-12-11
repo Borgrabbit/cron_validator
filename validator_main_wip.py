@@ -42,6 +42,13 @@ class CronValidator(object):
         # print('validate expr ', expression_parts[4])
         # print('validate expr ', expression_parts[5])
         # print('validate expr ', expression_parts[6])
+
+        if '?' == expression_parts[3] or '?' == expression_parts[5]:
+            pass
+        else:
+            exception_msg = 'Specifying both a DayOfWeek and a DayOfMonth value is not supported'
+            raise FormatException(exception_msg)
+
         """ SEC and MIN """
         # test_expr = "*/69"
         # if re.fullmatch("\d{1,2}$", test_expr):
