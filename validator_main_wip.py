@@ -286,13 +286,13 @@ class CronValidator(object):
 
         """ DAY of Week field
         # ? - * n sss
-        # ? - n-n
+        # ? - n-n, sss-sss
         # ? - n/n -> */n
         # ? - /D{1,3},/D{1,3}
         # ? - nL
         # ? - n#n
         """
-        expr_dow = '*'
+        expr_dow = '7#6'
         if re.fullmatch("\d{1}$", expr_dow):
             print("expr_dow 1")
             self.check_value_limit(expr=expr_dow, mi=1, mx=7, prefix='DayOfWeek')
@@ -305,6 +305,53 @@ class CronValidator(object):
             else:
                 msg = "Invalid DayOfWeek value '{}'".format(expr_dow)
                 raise FormatException(msg)
+        elif re.fullmatch(r"\d{1}/\d{1}$", expr_dow):
+            print(f'n/n {expr_dow}')
+            temp = expr_dow.split("/")
+            self.check_value_limit(expr=temp[0], mi=1, mx=7, prefix='DayOfWeek')
+            self.check_value_limit(expr=temp[1], mi=1, mx=7, prefix='DayOfWeek')
+        elif re.fullmatch(r"[*]/\d{1}$", expr_dow):
+            print(f'*/n {expr_dow}')
+            temp = expr_dow.split("/")
+            self.check_value_limit(expr=temp[1], mi=1, mx=7, prefix='DayOfWeek')
+        elif re.fullmatch(r"\d{1}-\d{1}$", expr_dow):
+            print(f'n-n {expr_dow}')
+            temp = expr_dow.split("-")
+            self.check_value_limit(expr=temp[0], mi=1, mx=7, prefix='DayOfWeek')
+            self.check_value_limit(expr=temp[1], mi=1, mx=7, prefix='DayOfWeek')
+            self.compare_range(st=temp[0], ed=temp[1], mi=1, mx=7, prefix='DayOfWeek')
+        elif re.fullmatch(r"\D{3}-\D{3}$", expr_dow):
+            print(f'sss-sss {expr_dow}')
+            temp = expr_dow.split("-")
+            cron_days = {v: k for (k, v) in self._cron_days.items()}
+            try:
+                st_day = cron_days[temp[0].upper()]
+                ed_day = cron_days[temp[1].upper()]
+            except KeyError:
+                msg = "Invalid DayOfWeek value '{}'".format(expr_dow)
+                raise FormatException(msg)
+            self.compare_range(st=st_day, ed=ed_day, mi=1, mx=7, prefix='DayOfWeek', exception_type='dow')
+        elif re.fullmatch(r"^(\d{1}|\D{3})((,\d{1})+|(,\D{3})*)*", expr_dow):
+            print(f'n,n {expr_dow}')
+            expr_dow_list = expr_dow.split(",")
+            if len(expr_dow_list) > 7:
+                exception_msg = "Exceeded maximum number({0}) of specified value. '{1}' is provided".format(7, len(expr_dow_list))
+                raise FormatException(exception_msg)
+            else:
+                cron_days = {v: k for (k, v) in self._cron_days.items()}
+                for day in expr_dow.split(","):
+                    print(f'month n|str {day} { isinstance(day, str) }')
+                    day = cron_days[day.upper()] + 1 if len(day) == 3 else day # syncronize by add 1 to cron_days index
+                    self.check_value_limit(expr=day, mi=1, mx=7, prefix='DayOfWeek')
+        elif re.fullmatch(r"\d{1}(l|L)", expr_dow):
+            print(f'nL {expr_dow}')
+            self.check_value_limit(expr=expr_dow[0], mi=1, mx=7, prefix='DayOfWeek')
+            expr_dow[0]
+        elif re.fullmatch(r"\d{1}#\d{1}", expr_dow):
+            print(f'n#n {expr_dow}')
+            temp = expr_dow.split('#')
+            self.check_value_limit(expr=temp[0], mi=1, mx=7, prefix='DayOfWeek')
+            self.check_value_limit(expr=temp[1], mi=1, mx=5, prefix='DayOfWeek', exception_type='dow')
         # elif check * / - , L #
 
     def check_value_limit(self, exception_type=None, **kwargs):
