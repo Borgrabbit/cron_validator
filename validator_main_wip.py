@@ -58,8 +58,15 @@ class CronValidator(object):
         12: 'DEC'
     }
 
-    def validate_expression(self, expression_parts):
+    def validate_expression(self, expression_parts, expr_length):
         print('expression_parts ', expression_parts)
+
+        if expr_length == 5:
+            pass
+        elif expr_length == 6:
+            pass
+        else:
+            pass
 
         if '?' == expression_parts[3] or '?' == expression_parts[5]:
             pass
