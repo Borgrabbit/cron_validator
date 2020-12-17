@@ -60,26 +60,34 @@ class CronValidator(object):
 
     def validate_expression(self, expression_parts, expr_length):
         print('expression_parts ', expression_parts)
+        """Initializes a new instance of the ExpressionParser class
+        Args:
+            expression_parts: 
+            expr_length: 
+
+        """
 
         if expr_length == 5:
-            pass
+            self.second_minute(expression_parts[1], 'Second and Minute')
+            self.hour(expression_parts[2], 'Hour')
+            self.dayofmonth(expression_parts[3], 'DayOfMonth')
+            self.month(expression_parts[4], 'Month')
+            self.dayofweek(expression_parts[5], 'DayOfWeek')
         elif expr_length == 6:
-            pass
+            self.second_minute(expression_parts[0], 'Second and Minute')
+            self.second_minute(expression_parts[1], 'Second and Minute')
+            self.hour(expression_parts[2], 'Hour')
+            self.dayofmonth(expression_parts[3], 'DayOfMonth')
+            self.month(expression_parts[4], 'Month')
+            self.dayofweek(expression_parts[5], 'DayOfWeek')
         else:
-            pass
-
-        if '?' == expression_parts[3] or '?' == expression_parts[5]:
-            pass
-        else:
-            raise FormatException('Specifying both a DayOfWeek and a DayOfMonth value is not supported')
-
-        self.second_minute(expression_parts[0], 'Second and Minute')
-        self.second_minute(expression_parts[1], 'Second and Minute')
-        self.hour(expression_parts[2], 'Hour')
-        self.dayofmonth(expression_parts[3], 'DayOfMonth')
-        self.month(expression_parts[4], 'Month')
-        self.dayofweek(expression_parts[5], 'DayOfWeek')
-        self.year(expression_parts[6], 'Year')
+            self.second_minute(expression_parts[0], 'Second and Minute')
+            self.second_minute(expression_parts[1], 'Second and Minute')
+            self.hour(expression_parts[2], 'Hour')
+            self.dayofmonth(expression_parts[3], 'DayOfMonth')
+            self.month(expression_parts[4], 'Month')
+            self.dayofweek(expression_parts[5], 'DayOfWeek')
+            self.year(expression_parts[6], 'Year')
 
     def second_minute(self, expr, prefix):
         mi, mx = (0, 59)
@@ -134,11 +142,11 @@ class CronValidator(object):
                 pass
 
             else:
-                msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+                msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
 
         else:
-            msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+            msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
             raise FormatException(msg)
 
     def hour(self, expr, prefix):
@@ -190,10 +198,10 @@ class CronValidator(object):
                         self.check_range(expr=n, mi=mi, mx=mx, prefix=prefix)
 
             else:
-                msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+                msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
         else:
-            msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+            msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
             raise FormatException(msg)
 
     def dayofmonth(self, expr, prefix):
@@ -256,8 +264,11 @@ class CronValidator(object):
                 else:
                     for dayofmonth in expr_ls:
                         self.check_range(expr=dayofmonth, mi=mi, mx=mx, prefix=prefix)
+            elif re.fullmatch(r"^(L|l)-(\d{1,2})$", expr):
+                parts = expr.split("-")
+                self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
             else:
-                msg = "Illegal Expression Format {}".format(expr)
+                msg = "Illegal Expression Format '{0}'".format(expr)
                 raise FormatException(msg)
 
         elif re.fullmatch(r"^(L|l)(W|w)?$", expr):
@@ -352,11 +363,11 @@ class CronValidator(object):
                         month = cron_months[month] if len(month) == 3 else month
                         self.check_range(expr=month, mi=mi, mx=mx, prefix=prefix)
             else:
-                msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+                msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
         else:
             print(f'Unknown match {expr}')
-            msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+            msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
             raise FormatException(msg)
 
     def dayofweek(self, expr, prefix):
@@ -450,7 +461,7 @@ class CronValidator(object):
             self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
             self.check_range(expr=parts[1], mi=mi, mx=5, prefix=prefix, type='dow')
         else:
-            msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+            msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
             raise FormatException(msg)
 
     def year(self, expr, prefix):
@@ -503,10 +514,10 @@ class CronValidator(object):
                     for year in expr_ls:
                         self.check_range(expr=year, mi=mi, mx=mx, prefix=prefix)
             else:
-                msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+                msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
         else:
-            msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+            msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
             raise FormatException(msg)
 
     def check_range(self, type=None, **kwargs):
