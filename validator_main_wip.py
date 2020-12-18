@@ -125,13 +125,16 @@ class CronValidator(object):
 
     def validate_expression(self, expression_parts, expr_length):
         print('expression_parts ', expression_parts)
-        """Initializes a new instance of the ExpressionParser class
+        """Validation for each expression fields
         Args:
-            expression_parts: 
-            expr_length: 
-
+            expression_parts: expression list
+            expr_length: length of the list
         """
 
+        """
+        Apply different index for varying length of the expression parts as it is mutated by parse().
+        Does not validate the case for having both DOW,DOM value because it is already causing exception.
+        """
         if expr_length == 5:
             self.second_minute(expression_parts[1], 'Second and Minute')
             self.hour(expression_parts[2], 'Hour')
@@ -155,6 +158,15 @@ class CronValidator(object):
             self.year(expression_parts[6], 'Year')
 
     def second_minute(self, expr, prefix):
+        """ sec/min expressions (n : Number, s: String)
+        *
+        nn (1~59)
+        nn-nn
+        nn/nn
+        nn-nn/nn
+        */nn
+        nn,nn,nn (Maximum 24 elements)
+        """
         mi, mx = (0, 59)
         if re.fullmatch("\d{1,2}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
@@ -215,6 +227,15 @@ class CronValidator(object):
             raise FormatException(msg)
 
     def hour(self, expr, prefix):
+        """ hour expressions (n : Number, s: String)
+        *
+        nn (1~23)
+        nn-nn
+        nn/nn
+        nn-nn/nn
+        */nn
+        nn,nn,nn (Maximum 24 elements)
+        """
         mi, mx = (0, 23)
         if re.fullmatch("\d{1,2}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
@@ -270,15 +291,18 @@ class CronValidator(object):
             raise FormatException(msg)
 
     def dayofmonth(self, expr, prefix):
-        """ DAY of Month
-        # n  - ?
-        # n-n - ?
-        # n/n - ? -> */n
-        # n,n,n - ?
-        # L - ?
-        # LW - ?
-        # L-n{1,2} - ?
-        # n{1,2}W - ?
+        """ DAYOfMonth expressions (n : Number, s: String)
+        *
+        ?
+        nn (1~31)
+        nn-nn
+        nn/nn
+        nn-nn/nn
+        */nn
+        nn,nn,nn (Maximum 31 elements)
+        L-nn
+        LW
+        nW
         """
         mi, mx = (1, 31)
         if re.fullmatch("\d{1,2}$", expr):
@@ -343,10 +367,21 @@ class CronValidator(object):
             self.check_range(expr=expr[:-1], mi=mi, mx=mx, prefix=prefix)
 
         else:
-            msg = "({0}) Illegal Expression Format {1}".format(prefix, expr)
+            msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
             raise FormatException(msg)
 
     def month(self, expr, prefix):
+        """ month expressions (n : Number, s: String)
+        *
+        nn (1~12)
+        sss (JAN~DEC)
+        nn-nn
+        sss-sss
+        nn/nn
+        nn-nn/nn
+        */nn
+        nn,nn,nn (Maximum 12 elements)
+        """
         mi, mx = (1, 12)
         if re.fullmatch("\d{1,2}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
@@ -436,13 +471,19 @@ class CronValidator(object):
             raise FormatException(msg)
 
     def dayofweek(self, expr, prefix):
-        """ DAY  of Week field
-        # ? - * n sss
-        # ? - n-n, sss-sss
-        # ? - n/n -> */n
-        # ? - /D{1,3},/D{1,3}
-        # ? - nL
-        # ? - n#n
+        """ DAYOfWeek expressions (n : Number, s: String)
+        *
+        ?
+        n (1~7)
+        sss (SUN~SAT)
+        n/n
+        n-n/n
+        */n
+        n-n
+        sss-sss
+        n|sss,n|sss,n|sss (maximum 7 elements)
+        nL
+        n#n
         """
         mi, mx = (1, 7)
 
@@ -469,7 +510,7 @@ class CronValidator(object):
             self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
             self.check_range('interval', expr=parts[1], mi=0, mx=mx, prefix=prefix)
 
-        elif re.fullmatch(r"\d{1,2}-\d{1,2}/\d{1,2}$", expr):
+        elif re.fullmatch(r"\d{1}-\d{1}/\d{1}$", expr):
             print(f'n-n/n {expr}')
             parts = expr.split("/")
             fst_parts = parts[0].split("-")
@@ -530,6 +571,14 @@ class CronValidator(object):
             raise FormatException(msg)
 
     def year(self, expr, prefix):
+        """ Year - valid expression (n : Number)
+        *
+        nnnn(1970~2099) - 4 digits number
+        nnnn-nnnn(1970~2099)
+        nnnn/nnn(0~129)
+        */nnn(0~129)
+        nnnn,nnnn,nnnn(1970~2099) - maximum 86 elements
+        """
         mi, mx = (1970, 2099)
         if re.fullmatch("\d{4}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
@@ -616,3 +665,4 @@ class CronValidator(object):
                 msg = "({0}) Invalid range '{1}-{2}'. Accepted range is {3}-{4}".format(prefix, self._cron_days[st],
                                                                                         self._cron_days[ed], mi, mx)
             raise FormatException(msg)
+
