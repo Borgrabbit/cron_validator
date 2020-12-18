@@ -124,7 +124,6 @@ class CronValidator(object):
     }
 
     def validate_expression(self, expression_parts, expr_length):
-        print('expression_parts ', expression_parts)
         """Validation for each expression fields
         Args:
             expression_parts: expression list
@@ -176,20 +175,17 @@ class CronValidator(object):
                 pass
 
             elif re.fullmatch(r"\d{1,2}-\d{1,2}$", expr):
-                print(f'n-n {expr}')
                 parts = expr.split("-")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\d{1,2}/\d{1,2}$", expr):
-                print(f'n/n {expr}')
                 parts = expr.split("/")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\d{1,2}-\d{1,2}/\d{1,2}$", expr):
-                print(f'n-n/n {expr}')
                 parts = expr.split("/")
                 fst_parts = parts[0].split("-")
                 self.check_range(expr=fst_parts[0], mi=mi, mx=mx, prefix=prefix)
@@ -198,12 +194,10 @@ class CronValidator(object):
                 self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\*/\d{1,2}$", expr):
-                print("*/n ", expr)
                 parts = expr.split("/")
                 self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"^\d{1,2}(,\d{1,2})+", expr):
-                print(f'n,n {expr}')
                 limit = 60
                 expr_ls = expr.split(",")
                 if len(expr_ls) > limit:
@@ -214,10 +208,6 @@ class CronValidator(object):
                 else:
                     for n in expr_ls:
                         self.check_range(expr=n, mi=mi, mx=mx, prefix=prefix)
-
-            elif '*' == expr:
-                pass
-
             else:
                 msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
@@ -245,34 +235,29 @@ class CronValidator(object):
                 pass
 
             elif re.fullmatch(r"\d{1,2}-\d{1,2}$", expr):
-                print(f'n-n {expr}')
                 parts = expr.split("-")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\d{1,2}/\d{1,2}$", expr):
-                print(f'n/n {expr}')
                 parts = expr.split("/")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\d{1,2}-\d{1,2}/\d{1,2}$", expr):
-                print(f'n-n/n {expr}')
                 parts = expr.split("/")
-                fst_parts = expr_parts[0].split("-")
+                fst_parts = parts[0].split("-")
                 self.check_range(expr=fst_parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range(expr=fst_parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.compare_range(st=fst_parts[0], ed=fst_parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\*/\d{1,2}$", expr):
-                print("*/n ", expr)
                 parts = expr.split("/")
                 self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"^\d{1,2}(,\d{1,2})+", expr):
-                print(f'n,n {expr}')
                 limit = 24
                 expr_ls = expr.split(",")
                 if len(expr_ls) > limit:
@@ -282,7 +267,6 @@ class CronValidator(object):
                 else:
                     for n in expr_ls:
                         self.check_range(expr=n, mi=mi, mx=mx, prefix=prefix)
-
             else:
                 msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
@@ -315,34 +299,29 @@ class CronValidator(object):
                 pass
 
             elif re.fullmatch(r"\d{1,2}-\d{1,2}$", expr):
-                print(f'n-n {expr}')
                 parts = expr.split("-")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\d{1,2}/\d{1,2}$", expr):
-                print(f'n/n {expr}')
                 parts = expr.split("/")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range('interval', expr=parts[1], mi=0, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\d{1,2}-\d{1,2}/\d{1,2}$", expr):
-                print(f'n-n/n {expr}')
                 parts = expr.split("/")
-                fst_parts = expr_parts[0].split("-")
+                fst_parts = parts[0].split("-")
                 self.check_range(expr=fst_parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range(expr=fst_parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.compare_range(st=fst_parts[0], ed=fst_parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.check_range('interval', expr=parts[1], mi=0, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\*/\d{1,2}$", expr):
-                print("*/n ", expr)
                 parts = expr.split("/")
                 self.check_range('interval', expr=parts[1], mi=0, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"^\d{1,2}(,\d{1,2})+", expr):
-                print(f'n,n {expr}')
                 limit = 31
                 expr_ls = expr.split(",")
                 if len(expr_ls) > 31:
@@ -397,14 +376,12 @@ class CronValidator(object):
                 pass
 
             elif re.fullmatch(r"\d{1,2}-\d{1,2}$", expr):
-                print(f'n-n {expr}')
                 parts = expr.split("-")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\D{3}-\D{3}$", expr):
-                print(f'str-str {expr}')
                 parts = expr.split("-")
                 cron_months = {v: k for (k, v) in self._cron_months.items()}
                 st_not_exist = parts[0] not in cron_months
@@ -415,13 +392,11 @@ class CronValidator(object):
                 self.compare_range(st=cron_months[parts[0]], ed=cron_months[parts[1]], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\d{1,2}/\d{1,2}$", expr):
-                print(f'n/n {expr}')
                 parts = expr.split("/")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range('interval', expr=parts[1], mi=0, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\d{1,2}-\d{1,2}/\d{1,2}$", expr):
-                print(f'n-n/n {expr}')
                 parts = expr.split("/")
                 fst_parts = parts[0].split("-")
                 self.check_range(expr=fst_parts[0], mi=mi, mx=mx, prefix=prefix)
@@ -430,12 +405,10 @@ class CronValidator(object):
                 self.check_range('interval', expr=parts[1], mi=0, mx=12, prefix=prefix)
 
             elif re.fullmatch(r"\*/\d{1,2}$", expr):
-                print("*/n ", expr)
                 parts = expr.split("/")
                 self.check_range('interval', expr=parts[1], mi=0, mx=12, prefix=prefix)
 
             elif re.fullmatch(r"^\d{1,2}(,\d{1,2})+", expr):
-                print(f'n,n: {expr}')
                 limit = 12
                 expr_ls = expr.split(",")
                 if len(expr_ls) > limit:
@@ -448,7 +421,6 @@ class CronValidator(object):
                         self.check_range(expr=month, mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"^(\d{1,2}|\D{3})((,\d{1,2})+|(,\D{3})*)*", expr):
-                print(f'n|str,n|str: {expr}')
                 limit = 12
                 expr_ls = expr.split(",")
                 if len(expr_ls) > limit:
@@ -459,14 +431,12 @@ class CronValidator(object):
                 else:
                     cron_months = {v: k for (k, v) in self._cron_months.items()}
                     for month in expr_ls:
-                        print(f'month n|str {month} {isinstance(month, str)}')
-                        month = cron_months[month] if len(month) == 3 else month
+                        month = cron_months[month.upper()] if len(month) == 3 else month
                         self.check_range(expr=month, mi=mi, mx=mx, prefix=prefix)
             else:
                 msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
         else:
-            print(f'Unknown match {expr}')
             msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
             raise FormatException(msg)
 
@@ -474,7 +444,7 @@ class CronValidator(object):
         """ DAYOfWeek expressions (n : Number, s: String)
         *
         ?
-        n (1~7)
+        n (0~7) - 0 and 7 used interchangeable as Sunday
         sss (SUN~SAT)
         n/n
         n-n/n
@@ -485,7 +455,7 @@ class CronValidator(object):
         nL
         n#n
         """
-        mi, mx = (1, 7)
+        mi, mx = (0, 7)
 
         if '*' == expr:
             pass
@@ -505,13 +475,11 @@ class CronValidator(object):
                 raise FormatException(msg)
 
         elif re.fullmatch(r"\d{1}/\d{1}$", expr):
-            print(f'n/n {expr}')
             parts = expr.split("/")
             self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
             self.check_range('interval', expr=parts[1], mi=0, mx=mx, prefix=prefix)
 
         elif re.fullmatch(r"\d{1}-\d{1}/\d{1}$", expr):
-            print(f'n-n/n {expr}')
             parts = expr.split("/")
             fst_parts = parts[0].split("-")
             self.check_range(expr=fst_parts[0], mi=mi, mx=mx, prefix=prefix)
@@ -520,19 +488,16 @@ class CronValidator(object):
             self.check_range('interval', expr=parts[1], mi=0, mx=mx, prefix=prefix)
 
         elif re.fullmatch(r"[*]/\d{1}$", expr):
-            print(f'*/n {expr}')
             parts = expr.split("/")
             self.check_range('interval', expr=parts[1], mi=0, mx=mx, prefix=prefix)
 
         elif re.fullmatch(r"\d{1}-\d{1}$", expr):
-            print(f'n-n {expr}')
             parts = expr.split("-")
             self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
             self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
             self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
 
         elif re.fullmatch(r"\D{3}-\D{3}$", expr):
-            print(f'sss-sss {expr}')
             parts = expr.split("-")
             cron_days = {v: k for (k, v) in self._cron_days.items()}
             try:
@@ -544,7 +509,6 @@ class CronValidator(object):
             self.compare_range(st=st_day, ed=ed_day, mi=mi, mx=mx, prefix=prefix, type='dow')
 
         elif re.fullmatch(r"^(\d{1}|\D{3})((,\d{1})+|(,\D{3})*)*", expr):
-            print(f'n,n {expr}')
             limit = 7
             expr_ls = expr.split(",")
             if len(expr_ls) > limit:
@@ -558,11 +522,9 @@ class CronValidator(object):
                     self.check_range(expr=day, mi=mi, mx=mx, prefix=prefix)
 
         elif re.fullmatch(r"\d{1}(l|L)", expr):
-            print(f'nL {expr}')
             self.check_range(expr=expr[0], mi=mi, mx=mx, prefix=prefix)
 
         elif re.fullmatch(r"\d{1}#\d{1}", expr):
-            print(f'n#n {expr}')
             parts = expr.split('#')
             self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
             self.check_range(expr=parts[1], mi=mi, mx=5, prefix=prefix, type='dow')
@@ -589,34 +551,29 @@ class CronValidator(object):
                 pass
 
             elif re.fullmatch(r"\d{4}-\d{4}$", expr):
-                print(f'n-n {expr}')
                 parts = expr.split("-")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
 
             elif re.fullmatch(r"\d{4}/\d{1,3}$", expr):
-                print(f'n/n {expr}')
                 parts = expr.split("/")
                 self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range('interval', expr=parts[1], mi=0, mx=129, prefix=prefix)
 
-            elif re.fullmatch(r"\d{1,2}-\d{1,2}/\d{1,2}$", expr):
-                print(f'n-n/n {expr}')
+            elif re.fullmatch(r"\d{4}-\d{4}/\d{1,3}$", expr):
                 parts = expr.split("/")
                 fst_parts = parts[0].split("-")
                 self.check_range(expr=fst_parts[0], mi=mi, mx=mx, prefix=prefix)
                 self.check_range(expr=fst_parts[1], mi=mi, mx=mx, prefix=prefix)
                 self.compare_range(st=fst_parts[0], ed=fst_parts[1], mi=mi, mx=mx, prefix=prefix)
-                self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
+                self.check_range('interval', expr=parts[1], mi=0, mx=129, prefix=prefix)
 
             elif re.fullmatch(r"\*/\d{1,3}$", expr):
-                print("*/n ", expr)
                 parts = expr.split("/")
-                self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
+                self.check_range('interval', expr=parts[1], mi=0, mx=129, prefix=prefix)
 
             elif re.fullmatch(r"^\d{4}(,\d{4})+", expr):
-                print(f'n,n {expr}')
                 limit = 84
                 expr_ls = expr.split(",")
                 if len(expr_ls) > limit:
@@ -635,6 +592,9 @@ class CronValidator(object):
             raise FormatException(msg)
 
     def check_range(self, type=None, **kwargs):
+        """
+        check if expression value within range of specified limit
+        """
         prefix = kwargs["prefix"]
         mi = kwargs["mi"]
         mx = kwargs["mx"]
@@ -652,12 +612,14 @@ class CronValidator(object):
             pass
 
     def compare_range(self, type=None, **kwargs):
+        """ check 2 expression values size
+        does not allow {st} value to be greater than {ed} value
+        """
         prefix = kwargs["prefix"]
         st = kwargs["st"]
         ed = kwargs["ed"]
         mi = kwargs["mi"]
         mx = kwargs["mx"]
-        print(f'st {st}, ed {ed} {int(st) < int(ed)}')
         if int(st) > int(ed):
             if type is None:
                 msg = "({0}) Invalid range '{1}-{2}'. Accepted range is {3}-{4}".format(prefix, st, ed, mi, mx)
@@ -665,4 +627,3 @@ class CronValidator(object):
                 msg = "({0}) Invalid range '{1}-{2}'. Accepted range is {3}-{4}".format(prefix, self._cron_days[st],
                                                                                         self._cron_days[ed], mi, mx)
             raise FormatException(msg)
-
