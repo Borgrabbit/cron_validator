@@ -59,8 +59,6 @@ class CronValidator(object):
         pass
 
     def validate_expression(self, expression_parts, expr_length):
-        #todo: remove expr_length
-
         """Validation for each expression fields
         Args:
             expression_parts: expression list
@@ -104,7 +102,7 @@ class CronValidator(object):
         nn,nn,nn (Maximum 24 elements)
         """
         mi, mx = (0, 59)
-        if re.fullmatch("\d{1,2}$", expr):
+        if re.fullmatch(r"\d{1,2}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
 
         elif re.search(r"[-*,/]", expr):
@@ -164,7 +162,7 @@ class CronValidator(object):
         nn,nn,nn (Maximum 24 elements)
         """
         mi, mx = (0, 23)
-        if re.fullmatch("\d{1,2}$", expr):
+        if re.fullmatch(r"\d{1,2}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
 
         elif re.search(r"[-*,/]", expr):
@@ -226,7 +224,7 @@ class CronValidator(object):
         nW
         """
         mi, mx = (1, 31)
-        if re.fullmatch("\d{1,2}$", expr):
+        if re.fullmatch(r"\d{1,2}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
         elif re.search(r"[-*,/?]", expr):
             if '*' == expr:
@@ -262,9 +260,9 @@ class CronValidator(object):
                 limit = 31
                 expr_ls = expr.split(",")
                 if len(expr_ls) > 31:
-                    msg = "({0}) Exceeded maximum number({1}) of specified value. '{2}' is provided".format(prefix, 31,
-                                                                                                            len(
-                                                                                                                expr_ls))
+                    msg = "({0}) Exceeded maximum number({1}) of specified value. '{2}' is provided".format(prefix,
+                                                                                                            limit, len(
+                            expr_ls))
                     raise FormatException(msg)
                 else:
                     for dayofmonth in expr_ls:
@@ -299,7 +297,7 @@ class CronValidator(object):
         nn,nn,nn (Maximum 12 elements)
         """
         mi, mx = (1, 12)
-        if re.fullmatch("\d{1,2}$", expr):
+        if re.fullmatch(r"\d{1,2}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
 
         elif re.fullmatch(r"\D{3}", expr):
@@ -400,10 +398,10 @@ class CronValidator(object):
         elif '?' == expr:
             pass
 
-        elif re.fullmatch("\d{1}$", expr):
+        elif re.fullmatch(r"\d{1}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
 
-        elif re.fullmatch("\D{3}", expr):
+        elif re.fullmatch(r"\D{3}", expr):
             cron_days = {v: k for (k, v) in self._cron_days.items()}
             if expr.upper() in cron_days:
                 pass
@@ -479,7 +477,7 @@ class CronValidator(object):
         nnnn,nnnn,nnnn(1970~2099) - maximum 86 elements
         """
         mi, mx = (1970, 2099)
-        if re.fullmatch("\d{4}$", expr):
+        if re.fullmatch(r"\d{4}$", expr):
             self.check_range(expr=expr, mi=mi, mx=mx, prefix=prefix)
 
         elif re.search(r"[-*,/]", expr):
@@ -540,8 +538,8 @@ class CronValidator(object):
             if type is None:
                 msg = "{0} values must be between {1} and {2} but '{3}' is provided".format(prefix, mi, mx, expr)
             elif type == "interval":
-                msg = "({0}) Accepted increment value range is {1}~{2} but '{3}' is provided".format(prefix, mi, mx,
-                                                                                                     expr)
+                msg = "({0}) Accepted increment value range is {1}~{2} but '{3}' is provided".format(prefix,
+                                                                                                     mi, mx, expr)
             elif type == 'dow':
                 msg = "({0}) Accepted week value is {1}~{2} but '{3}' is provided".format(prefix, mi, mx, expr)
             raise FormatException(msg)
@@ -561,6 +559,7 @@ class CronValidator(object):
             if type is None:
                 msg = "({0}) Invalid range '{1}-{2}'. Accepted range is {3}-{4}".format(prefix, st, ed, mi, mx)
             elif type == 'dow':
-                msg = "({0}) Invalid range '{1}-{2}'. Accepted range is {3}-{4}".format(prefix, self._cron_days[st],
+                msg = "({0}) Invalid range '{1}-{2}'. Accepted range is {3}-{4}".format(prefix,
+                                                                                        self._cron_days[st],
                                                                                         self._cron_days[ed], mi, mx)
             raise FormatException(msg)
