@@ -406,7 +406,7 @@ class CronValidator(object):
             if expr.upper() in cron_days:
                 pass
             else:
-                msg = "Invalid DayOfWeek value '{}'".format(expr)
+                msg = "Invalid value '{}'".format(expr)
                 raise FormatException(msg)
 
         elif re.match(r"\d{1}/\d{1}$", expr):
@@ -439,7 +439,7 @@ class CronValidator(object):
                 st_day = cron_days[parts[0].upper()]
                 ed_day = cron_days[parts[1].upper()]
             except KeyError:
-                msg = "({0}) Invalid DayOfWeek value '{1}'".format(prefix, expr)
+                msg = "({0}) Invalid value '{1}'".format(prefix, expr)
                 raise FormatException(msg)
             self.compare_range(st=st_day, ed=ed_day, mi=mi, mx=mx, prefix=prefix, type='dow')
 
@@ -463,6 +463,15 @@ class CronValidator(object):
         elif re.match(r"\d{1}#\d{1}$", expr):
             parts = expr.split('#')
             self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
+            self.check_range(expr=parts[1], mi=mi, mx=5, prefix=prefix, type='dow')
+        elif re.match(r"\D{3}#\d{1}$", expr):
+            parts = expr.split('#')
+            cron_days = {v: k for (k, v) in self._cron_days.items()}
+            try:
+                st_day = cron_days[parts[0].upper()]
+            except KeyError:
+                msg = "({0}) Invalid value '{1}'".format(prefix, expr)
+                raise FormatException(msg)
             self.check_range(expr=parts[1], mi=mi, mx=5, prefix=prefix, type='dow')
         else:
             msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
