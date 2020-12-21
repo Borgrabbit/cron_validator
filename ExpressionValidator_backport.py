@@ -132,7 +132,7 @@ class CronValidator(object):
                 parts = expr.split("/")
                 self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
 
-            elif re.match(r"^\d{1,2}(,\d{1,2})+$", expr):
+            elif re.match(r"^(\d{1,2}|\d{1,2}-\d{1,2})(,\d{1,2}|,\d{1,2}-\d{1,2})+$", expr):
                 limit = 60
                 expr_ls = expr.split(",")
                 if len(expr_ls) > limit:
@@ -142,7 +142,13 @@ class CronValidator(object):
                     raise FormatException(msg)
                 else:
                     for n in expr_ls:
-                        self.check_range(expr=n, mi=mi, mx=mx, prefix=prefix)
+                        if '-' in n:
+                            parts = n.split("-")
+                            self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
+                            self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
+                            self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
+                        else:
+                            self.check_range(expr=n, mi=mi, mx=mx, prefix=prefix)
             else:
                 msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
@@ -192,7 +198,7 @@ class CronValidator(object):
                 parts = expr.split("/")
                 self.check_range('interval', expr=parts[1], mi=mi, mx=mx, prefix=prefix)
 
-            elif re.match(r"^\d{1,2}(,\d{1,2})+$", expr):
+            elif re.match(r"^(\d{1,2}|\d{1,2}-\d{1,2})(,\d{1,2}|,\d{1,2}-\d{1,2})+$", expr):
                 limit = 24
                 expr_ls = expr.split(",")
                 if len(expr_ls) > limit:
@@ -201,7 +207,13 @@ class CronValidator(object):
                     raise FormatException(msg)
                 else:
                     for n in expr_ls:
-                        self.check_range(expr=n, mi=mi, mx=mx, prefix=prefix)
+                        if '-' in n:
+                            parts = n.split("-")
+                            self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
+                            self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
+                            self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
+                        else:
+                            self.check_range(expr=n, mi=mi, mx=mx, prefix=prefix)
             else:
                 msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
@@ -277,8 +289,14 @@ class CronValidator(object):
         elif re.match(r"^(L|l)(W|w)?$", expr):
             pass
 
+        elif re.match(r"^(W|w)(L|l)?$", expr):
+            pass
+
         elif re.match(r"^(\d{1,2})(w{1}|W{1})$", expr):
             self.check_range(expr=expr[:-1], mi=mi, mx=mx, prefix=prefix)
+
+        elif re.match(r"^(w{1}|W{1})(\d{1,2})$", expr):
+            self.check_range(expr=expr[1:], mi=mi, mx=mx, prefix=prefix)
 
         else:
             msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
@@ -294,7 +312,7 @@ class CronValidator(object):
         nn/nn
         nn-nn/nn
         */nn
-        nn,nn,nn (Maximum 12 elements)
+        nn,nn,nn,nn-nn,sss-sss (Maximum 12 elements)
         """
         mi, mx = (1, 12)
         if re.match(r"\d{1,2}$", expr):
@@ -355,7 +373,12 @@ class CronValidator(object):
                     for month in expr_ls:
                         self.check_range(expr=month, mi=mi, mx=mx, prefix=prefix)
 
-            elif re.match(r"^(\d{1,2}|\D{3})((,\d{1,2})+|(,\D{3})*)*$", expr):
+            elif re.match(r"^((\d{1,2}|\D{3})|(\D{3}-\D{3})|(\d{1,2}-\d{1,2}))((,\d{1,2})+"
+                          r"|(,\D{3})*|(,\d{1,2}-\d{1,2})*|(,\D{3}-\D{3})*)*$", expr):
+                """
+                    1st Capture group : digit{1~2}|nondigit{3}|nondigit{3}-nondigit{3}|digit{3}-digit{3}
+                    2nd Capture group : same with 1st capture group but repeated.
+                """
                 limit = 12
                 expr_ls = expr.split(",")
                 if len(expr_ls) > limit:
@@ -366,8 +389,18 @@ class CronValidator(object):
                 else:
                     cron_months = {v: k for (k, v) in self._cron_months.items()}
                     for month in expr_ls:
-                        month = cron_months[month.upper()] if len(month) == 3 else month
-                        self.check_range(expr=month, mi=mi, mx=mx, prefix=prefix)
+                        if '-' in month:
+                            parts = month.split("-")
+                            if len(parts[0]) == 3:
+                                self.check_range(expr=cron_months[parts[0].upper()], mi=mi, mx=mx, prefix=prefix)
+                                self.check_range(expr=cron_months[parts[1].upper()], mi=mi, mx=mx, prefix=prefix)
+                            else:
+                                self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
+                                self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
+                                self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
+                        else:
+                            month = cron_months[month.upper()] if len(month) == 3 else month
+                            self.check_range(expr=month, mi=mi, mx=mx, prefix=prefix)
             else:
                 msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
@@ -386,7 +419,8 @@ class CronValidator(object):
         */n
         n-n
         sss-sss
-        n|sss,n|sss,n|sss (maximum 7 elements)
+        n|sss,n|sss,n|sss,n-n,sss-sss (maximum 7 elements)
+
         nL
         n#n
         """
@@ -443,7 +477,8 @@ class CronValidator(object):
                 raise FormatException(msg)
             self.compare_range(st=st_day, ed=ed_day, mi=mi, mx=mx, prefix=prefix, type='dow')
 
-        elif re.match(r"^(\d{1}|\D{3})((,\d{1})+|(,\D{3})*)*$", expr):
+        elif re.match(r"^((\d{1}|\D{3})|(\D{3}-\D{3})|(\d{1}-\d{1}))"
+                      r"((,\d{1})+|(,\D{3})*|(,\d{1}-\d{1})*|(,\D{3}-\D{3})*)*$", expr):
             limit = 7
             expr_ls = expr.split(",")
             if len(expr_ls) > limit:
@@ -453,8 +488,19 @@ class CronValidator(object):
             else:
                 cron_days = {v: k for (k, v) in self._cron_days.items()}
                 for day in expr_ls:
-                    day = cron_days[day.upper()] + 1 if len(day) == 3 else day  # syncronize by add 1 to cron_days index
-                    self.check_range(expr=day, mi=mi, mx=mx, prefix=prefix)
+                    if '-' in day:
+                        parts = day.split("-")
+                        if len(parts[0]) == 3:
+                            self.check_range(expr=cron_days[parts[0].upper()], mi=mi, mx=mx, prefix=prefix)
+                            self.check_range(expr=cron_days[parts[1].upper()], mi=mi, mx=mx, prefix=prefix)
+                        else:
+                            self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
+                            self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
+                            self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
+                    else:
+                        # syncronize by add 1 to cron_days index
+                        day = cron_days[day.upper()] + 1 if len(day) == 3 else day
+                        self.check_range(expr=day, mi=mi, mx=mx, prefix=prefix)
 
         elif re.match(r"\d{1}(l|L)$", expr):
             parts = expr.upper().split('L')
@@ -518,7 +564,12 @@ class CronValidator(object):
                 parts = expr.split("/")
                 self.check_range('interval', expr=parts[1], mi=0, mx=129, prefix=prefix)
 
-            elif re.match(r"^\d{4}(,\d{4})+$", expr):
+            elif re.match(r"\d{1}/\d{1,3}$", expr):
+                parts = expr.split("/")
+                self.check_range(expr=parts[0], mi=0, mx=129, prefix=prefix)
+                self.check_range('interval', expr=parts[1], mi=0, mx=129, prefix=prefix)
+
+            elif re.match(r"^(\d{4}|\d{4}-\d{4})(,\d{4}|,\d{4}-\d{4})+$", expr):
                 limit = 84
                 expr_ls = expr.split(",")
                 if len(expr_ls) > limit:
@@ -528,7 +579,13 @@ class CronValidator(object):
                     raise FormatException(msg)
                 else:
                     for year in expr_ls:
-                        self.check_range(expr=year, mi=mi, mx=mx, prefix=prefix)
+                        if '-' in year:
+                            parts = year.split("-")
+                            self.check_range(expr=parts[0], mi=mi, mx=mx, prefix=prefix)
+                            self.check_range(expr=parts[1], mi=mi, mx=mx, prefix=prefix)
+                            self.compare_range(st=parts[0], ed=parts[1], mi=mi, mx=mx, prefix=prefix)
+                        else:
+                            self.check_range(expr=year, mi=mi, mx=mx, prefix=prefix)
             else:
                 msg = "({0}) Illegal Expression Format '{1}'".format(prefix, expr)
                 raise FormatException(msg)
